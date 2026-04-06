@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overview | Academic Industry Analytics</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span>AIAD OVERVIEW</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="nav-item active" data-section="overview">
+                    <span>🏠 Overview</span>
+                </a>
+                <a class="nav-item" data-section="student-overview" id="nav-student">
+                    <span>🎓 Student View</span>
+                </a>
+
+                <a class="nav-item" data-section="placement-overview" id="nav-placement">
+                    <span>💼 Placement View</span>
+                </a>
+                <a class="nav-item" data-section="admin-overview" id="nav-admin">
+                    <span>⚙️ Admin View</span>
+                </a>
+                <a class="nav-item" data-section="reports">
+                    <span>📊 Reports</span>
+                </a>
+                <a class="nav-item" data-section="notifications">
+                    <span>🔔 Notifications</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn btn-primary" id="logout-btn">
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="top-bar-title" id="page-title">General Overview</div>
+                <div class="user-info">
+                    <div id="system-status" class="status-badge checking">Server Check...</div>
+                    <span id="user-name-display" style="font-weight: 600;">User</span>
+                    <span class="user-badge" id="user-role-display">Role</span>
+                </div>
+            </header>
+
+            <div class="content-body">
+
+                <!-- Welcome Section -->
+                <section id="overview" class="page-content">
+                    <div class="page-header">
+                        <h2>Welcome Back!</h2>
+                        <p>Here's what's happening in the dashboard today.</p>
+                    </div>
+                </section>
+
+                <!-- Student Dashboard -->
+                <section id="student-overview" class="page-content hidden">
+                    <div class="page-header">
+                        <h2>Student Analytics Overview</h2>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-card-label">Current CGPA</div>
+                            <div class="stat-card-value" id="student-cgpa">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-label">Industry Skills</div>
+                            <div class="stat-card-value" id="student-skills" style="font-size: 16px;">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-label">Placement Status</div>
+                            <div class="stat-card-value" id="student-eligibility">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-label">Department</div>
+                            <div class="stat-card-value" id="student-dept" style="font-size: 18px;">-</div>
+                        </div>
+                    </div>
+                    <div class="page-header" style="margin-top: 40px;">
+                        <h3>Career Recommendation & Skill Gap Analysis</h3>
+                        <p>Based on your current skills compared to real-time industry trends.</p>
+                    </div>
+                    <div class="chart-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 24px;">
+                        <div class="chart-card" id="career-match-card">
+                            <h3>Top Career Match</h3>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--primary); margin-top: 12px;"
+                                id="best-match-role">Loading...</div>
+                            <div style="font-size: 14px; color: var(--gray-500); margin-top: 8px;">Match Score: <span
+                                    id="best-match-score" style="font-weight: bold; color: var(--success);">-</span>
+                            </div>
+                            <div style="font-size: 14px; color: var(--gray-500); margin-top: 4px;">Expected Package:
+                                <span id="best-match-pkg" style="font-weight: bold;">-</span></div>
+                            <div style="margin-top: 16px;">
+                                <div style="font-size: 14px; font-weight: 600;">Missing Skills to Learn:</div>
+                                <div id="missing-skills-list"
+                                    style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;"></div>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Other Potential Roles</h3>
+                            <div id="other-roles-list"
+                                style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;"></div>
+                            <button class="btn btn-primary" style="margin-top: 16px; width: 100%;" onclick="openRolesModal()">View All Matched Roles</button>
+                        </div>
+                    </div>
+                    <div class="chart-grid">
+                        <div class="chart-card">
+                            <h3>Skill Proficiency vs Demand</h3>
+                            <canvas id="skill-chart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Personalized Skill Gap Analysis</h3>
+                            <canvas id="student-radar-chart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Placement Status</h3>
+                            <canvas id="placement-chart"></canvas>
+                        </div>
+                    </div>
+                    <!-- Placement Registration for Students -->
+                    <div class="page-header" style="margin-top: 40px;">
+                        <h3>Complete Your Placement Profile</h3>
+                        <p>Fill in your details to register for placement drives.</p>
+                    </div>
+                    <div class="chart-card">
+                        <form id="student-reg-form">
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                                <div class="form-group">
+                                    <label>Email Address</label>
+                                    <input type="email" id="reg-email" placeholder="email@example.com" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone Number</label>
+                                    <input type="tel" id="reg-phone" placeholder="9876543210" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Department</label>
+                                    <select id="reg-dept" required>
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Information Technology">Information Technology</option>
+                                        <option value="Electronics">Electronics</option>
+                                        <option value="Mechanical">Mechanical</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Batch Year</label>
+                                    <input type="number" id="reg-batch" placeholder="2026" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Current CGPA</label>
+                                    <input type="number" step="0.01" id="reg-cgpa" placeholder="8.5" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Skills (Comma separated)</label>
+                                    <input type="text" id="reg-skills" placeholder="Java, Python, SQL" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary"
+                                style="width: auto; padding: 12px 32px; margin-top: 16px;">Save Profile</button>
+                        </form>
+                    </div>
+
+                    <!-- Upcoming Drives for Students -->
+                    <div class="page-header" style="margin-top: 40px;">
+                        <h3>Upcoming Placement Drives</h3>
+                    </div>
+                    <div id="student-company-list" class="stats-grid">
+                        <!-- Company cards will be injected -->
+                    </div>
+                </section>
+
+
+
+                <!-- Placement Dashboard -->
+                <section id="placement-overview" class="page-content hidden">
+                    <div class="page-header">
+                        <h2>Placement Performance Overview</h2>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-card-label">Students Placed</div>
+                            <div class="stat-card-value" id="placed-count">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-label">Companies Visited</div>
+                            <div class="stat-card-value" id="company-count">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-label">Highest Package</div>
+                            <div class="stat-card-value" id="highest-pack">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-label">Average Package</div>
+                            <div class="stat-card-value" id="avg-pack">-</div>
+                        </div>
+                    </div>
+                    <div class="chart-grid">
+                        <div class="chart-card">
+                            <h3>Placement Trends Over Years</h3>
+                            <canvas id="placement-trend-chart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Average Salary Package Trend</h3>
+                            <canvas id="salary-trend-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Company Management for Placement Officer -->
+                    <div class="page-header" style="margin-top: 40px;">
+                        <h2>Manage Placement Drives</h2>
+                    </div>
+                    <div class="chart-card" style="margin-bottom: 24px;">
+                        <form id="company-form">
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                                <div class="form-group">
+                                    <label>Company Name</label>
+                                    <input type="text" id="comp-name" placeholder="e.g. Google" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Role</label>
+                                    <input type="text" id="comp-role" placeholder="e.g. SDE" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Package</label>
+                                    <input type="text" id="comp-package" placeholder="e.g. 15 LPA" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Drive Date</label>
+                                    <input type="date" id="comp-date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <select id="comp-status">
+                                        <option value="Upcoming">Upcoming</option>
+                                        <option value="Ongoing">Ongoing</option>
+                                        <option value="Completed">Completed</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary"
+                                style="width: auto; padding: 12px 24px;">Add/Update Company</button>
+                        </form>
+                    </div>
+                    <div id="placement-company-list" class="stats-grid">
+                        <!-- Managed companies will be injected -->
+                    </div>
+
+                    <!-- Student Management for Placement Officer -->
+                    <div class="page-header" style="margin-top: 40px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <h2>Manage Registered Students</h2>
+                                    <button class="btn btn-primary" onclick="openAddStudentModal()"
+                                        style="padding: 8px 16px; font-size: 14px;">+ Add Student</button>
+                                </div>
+                                <p>Review student profiles and update their placement status.</p>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0; width: 300px;">
+                                <input type="text" id="student-search" placeholder="Search by name or skills..."
+                                    onkeyup="filterStudents()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table id="placement-students-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Dept</th>
+                                    <th>CGPA</th>
+                                    <th>Skills</th>
+                                    <th>Company</th>
+                                    <th>Package</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="placement-students-list">
+                                <!-- Registered students will be injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Admin Dashboard -->
+                <section id="admin-overview" class="page-content hidden">
+                    <div class="page-header">
+                        <h2>System Administration Overview</h2>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-card-label">Total Students</div>
+                            <div class="stat-card-value" id="total-students">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-label">Total Faculty</div>
+                            <div class="stat-card-value" id="total-faculty">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-label">Placed</div>
+                            <div class="stat-card-value" id="total-placed">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-label">Not Placed</div>
+                            <div class="stat-card-value" id="total-not-placed">-</div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>System Usage Overview</h3>
+                        <canvas id="usage-chart"></canvas>
+                    </div>
+
+                    <div class="page-header" style="margin-top: 40px;">
+                        <h3>Recent Registration Activity</h3>
+                    </div>
+                    <div class="notification-list" id="recent-reg-activity">
+                        <!-- Activity items will be injected -->
+                    </div>
+
+                    <!-- Manage Industry Trends -->
+                    <div class="page-header" style="margin-top: 40px;">
+                        <h3>Manage Industry Trends</h3>
+                        <p>Update job roles, required skills, and expected packages for Student Career Recommendations.</p>
+                    </div>
+                    <div class="chart-card" style="margin-bottom: 24px;">
+                        <form id="trend-form" onsubmit="handleTrendSubmit(event)">
+                            <input type="hidden" id="trend-id">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                                <div class="form-group">
+                                    <label>Job Role</label>
+                                    <input type="text" id="trend-role" placeholder="e.g. Data Scientist" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Required Skills (Comma separated)</label>
+                                    <input type="text" id="trend-skills" placeholder="e.g. Python, SQL, ML" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Average Package</label>
+                                    <input type="text" id="trend-package" placeholder="e.g. 15 LPA" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Demand Level</label>
+                                    <select id="trend-demand" required>
+                                        <option value="High">High</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Low">Low</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="margin-top: 16px; display: flex; gap: 12px;">
+                                <button type="submit" class="btn btn-primary" style="width: auto; padding: 12px 24px;" id="trend-submit-btn">Add Trend</button>
+                                <button type="button" class="btn" style="width: auto; padding: 12px 24px; display: none;" id="trend-cancel-btn" onclick="resetTrendForm()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Job Role</th>
+                                    <th>Required Skills</th>
+                                    <th>Avg Package</th>
+                                    <th>Demand</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-trends-list">
+                                <!-- Industry trends will be injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Reports -->
+                <section id="reports" class="page-content hidden">
+                    <div class="page-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2>Analytical Reports</h2>
+                            <button class="btn btn-primary" style="width: auto; padding: 10px 20px;"
+                                onclick="generateReport()">Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>CGPA</th>
+                                    <th>Placement Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reports-table-body">
+                                <!-- Data will be injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Notifications -->
+                <section id="notifications" class="page-content hidden">
+                    <div class="page-header">
+                        <h2>System Notifications</h2>
+                    </div>
+                    <div class="notification-list" id="notifications-list">
+                        <!-- Notifications will be injected -->
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- All Roles Modal -->
+    <div id="roles-modal" class="modal hidden">
+        <div class="modal-content" style="width: 700px; max-height: 80vh; overflow-y: auto;">
+            <header class="modal-header">
+                <h3 style="font-size: 18px;">All Matched Job Roles</h3>
+                <button class="close-btn" onclick="closeRolesModal()">&times;</button>
+            </header>
+            <div id="all-roles-container" style="display: flex; flex-direction: column; gap: 16px; margin-top: 16px;">
+                <!-- Roles injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Add/Edit Modal -->
+    <div id="student-modal" class="modal hidden">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h3 id="modal-title">Add New Student</h3>
+                <button class="close-btn" onclick="closeStudentModal()">&times;</button>
+            </header>
+            <form id="student-modal-form">
+                <input type="hidden" id="modal-student-id">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="modal-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="modal-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select id="modal-dept" required>
+                            <option value="Computer Science">Computer Science</option>
+                            <option value="Information Technology">Information Technology</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Mechanical">Mechanical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>CGPA</label>
+                        <input type="number" step="0.01" id="modal-cgpa" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="modal-phone">
+                    </div>
+                    <div class="form-group">
+                        <label>Batch Year</label>
+                        <input type="text" id="modal-batch" placeholder="e.g. 2027">
+                    </div>
+                    <div class="form-group">
+                        <label>Skills (Comma separated)</label>
+                        <input type="text" id="modal-skills" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Placement Status</label>
+                        <select id="modal-status" onchange="toggleModalPlacementFields()">
+                            <option value="Not Placed">Not Placed</option>
+                            <option value="Placed">Placed</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="modal-placement-fields" class="hidden"
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; border-top: 1px solid var(--gray-200); padding-top: 16px;">
+                    <div class="form-group">
+                        <label>Company Name</label>
+                        <input type="text" id="modal-company">
+                    </div>
+                    <div class="form-group">
+                        <label>Package (LPA)</label>
+                        <input type="text" id="modal-package">
+                    </div>
+                </div>
+        </div>
+        <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+            <button type="button" class="btn" onclick="closeStudentModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Student</button>
+        </div>
+        </form>
+    </div>
+    </div>
+
+    <style>
+        /* Simple Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            width: 500px;
+            max-width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--gray-200);
+            padding-bottom: 12px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray-500);
+        }
+    </style>
+
+    <script src="dashboard.js"></script>
+</body>
+
+</html>
