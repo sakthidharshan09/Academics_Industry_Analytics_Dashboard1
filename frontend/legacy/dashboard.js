@@ -374,7 +374,7 @@ async function handleRegistrationSubmit(e) {
                 btn.disabled = false;
                 btn.innerHTML = originalBtnText;
                 btn.style.background = '';
-                populateData('student-dashboard');
+                populateData('student-overview');
             }, 2000);
         } else {
             throw new Error(result.message);
@@ -383,7 +383,7 @@ async function handleRegistrationSubmit(e) {
         console.error('Registration error:', err);
         btn.disabled = false;
         btn.innerHTML = originalBtnText;
-        const fullUrl = targetUrl.startsWith('http') ? targetUrl : window.location.origin + targetUrl;
+        const fullUrl = `${API_URL}/register-placement`;
         alert(`Could not save profile. Error: ${err.message}\n\nTarget URL: ${fullUrl}\n\nTIP: Ensure the backend server is running on http://127.0.0.1:5000`);
     }
 }

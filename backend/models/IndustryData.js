@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const IndustryDataSchema = new mongoose.Schema({
     jobRole: { type: String, required: true, unique: true },
@@ -7,4 +7,5 @@ const IndustryDataSchema = new mongoose.Schema({
     demandLevel: { type: String, enum: ['High', 'Medium', 'Low'], default: 'Medium' }
 }, { timestamps: true });
 
-module.exports = mongoose.model('IndustryData', IndustryDataSchema);
+export default mongoose.model('IndustryData', IndustryDataSchema);
+

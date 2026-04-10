@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const User = require('../models/User');
+import User from '../models/User.js';
 
 // Simple Login Route (using plain text for now as per dummy data simplicity, can add bcrypt later)
 router.post('/login', async (req, res) => {
@@ -27,4 +27,5 @@ router.post('/login', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
+

@@ -1,11 +1,11 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const Student = require('../models/Student');
-const Company = require('../models/Company');
-const Notification = require('../models/Notification');
-const Activity = require('../models/Activity');
-const User = require('../models/User');
-const IndustryData = require('../models/IndustryData');
+import Student from '../models/Student.js';
+import Company from '../models/Company.js';
+import Notification from '../models/Notification.js';
+import Activity from '../models/Activity.js';
+import User from '../models/User.js';
+import IndustryData from '../models/IndustryData.js';
 
 // Get Dashboard Data
 router.get('/dashboard-stats', async (req, res) => {
@@ -87,6 +87,7 @@ router.get('/student/:username', async (req, res) => {
                 cgpa: 8.4,
                 skills: ["Java", "Python", "Node.js"],
                 requiredSkills: ["React", "MongoDB", "AWS"],
+                department: "Computer Science",
                 status: "Eligible"
             });
         }
@@ -181,7 +182,7 @@ router.get('/all-students', async (req, res) => {
 
 // Update Placement Status
 router.post('/update-placement-status', async (req, res) => {
-    const { studentId, isPlaced, company, package } = req.body;
+    const { studentId, isPlaced, company, package: packageValue } = req.body;
     try {
         const student = await Student.findById(studentId);
         if (!student) return res.status(404).json({ success: false, message: 'Student not found' });
@@ -190,7 +191,7 @@ router.post('/update-placement-status', async (req, res) => {
         if (isPlaced) {
             student.placementData = {
                 company,
-                package,
+                package: packageValue,
                 year: new Date().getFullYear()
             };
         }
@@ -318,17 +319,17 @@ router.get('/companies', async (req, res) => {
 
 // Add or Update a company
 router.post('/companies', async (req, res) => {
-    const { name, role, package, driveDate, status } = req.body;
+    const { name, role, package: packageValue, driveDate, status } = req.body;
     try {
         let company = await Company.findOne({ name });
         if (company) {
             company.role = role;
-            company.package = package;
+            company.package = packageValue;
             company.driveDate = driveDate;
             company.status = status;
             await company.save();
         } else {
-            company = new Company({ name, role, package, driveDate, status });
+            company = new Company({ name, role, package: packageValue, driveDate, status });
             await company.save();
         }
         res.json({ success: true, company });
@@ -466,4 +467,4 @@ router.get('/student-analysis/:username', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
