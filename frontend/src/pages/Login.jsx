@@ -19,7 +19,7 @@ const Login = () => {
             try {
                 // Health check uses the same base URL prefix 
                 // but refers to the root health endpoint in the backend
-                const res = await axios.get(`${API_BASE_URL.replace('/api', '')}/health`);
+                const res = await axios.get(`${API_BASE_URL}/health`);
                 if (res.data.status === 'ok') setServerStatus('online');
                 else setServerStatus('offline');
             } catch (err) {

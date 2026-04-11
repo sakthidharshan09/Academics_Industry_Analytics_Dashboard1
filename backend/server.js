@@ -35,7 +35,12 @@ mongoose.connect(MONGODB_URI)
 
 // Health check API
 app.get('/api/health', (req, res) => {
-    res.json({ status: "ok", message: "AIAD Backend is reachable" });
+    const dbStatus = mongoose.connection.readyState === 1 ? 'ok' : 'disconnected';
+    res.json({ 
+        status: dbStatus === 'ok' ? 'ok' : 'error', 
+        message: dbStatus === 'ok' ? "AIAD Backend is reachable" : "Database connection lost",
+        db: dbStatus
+    });
 });
 
 // Auth Routes
