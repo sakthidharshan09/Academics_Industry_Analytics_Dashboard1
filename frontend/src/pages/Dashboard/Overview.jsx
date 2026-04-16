@@ -9,6 +9,8 @@ import {
     ArrowUpRight,
     ArrowDownRight
 } from 'lucide-react';
+import { Doughnut } from 'react-chartjs-2';
+import '../../utils/chartSetup';
 
 const StatCard = ({ title, value, icon, trend, color }) => (
     <div className="stat-card">
@@ -103,8 +105,25 @@ const Overview = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '24px' }}>
                 <div className="chart-card">
                     <h3>Placement Success Rate</h3>
-                    <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--gray-50)', borderRadius: '12px', color: 'var(--gray-400)' }}>
-                        Chart will be rendered here (Integrated in next step)
+                    <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--gray-50)', borderRadius: '12px', color: 'var(--gray-400)', padding: '16px' }}>
+                        <Doughnut 
+                            data={{
+                                labels: ['Placed Students', 'Seeking Placement'],
+                                datasets: [{
+                                    data: [stats?.placedCount || 0, stats?.notPlacedCount || 0],
+                                    backgroundColor: ['#10b981', '#cbd5e1'],
+                                    hoverBackgroundColor: ['#059669', '#94a3b8'],
+                                    borderWidth: 0,
+                                }]
+                            }}
+                            options={{
+                                maintainAspectRatio: false,
+                                cutout: '70%',
+                                plugins: {
+                                    legend: { position: 'bottom' }
+                                }
+                            }}
+                        />
                     </div>
                 </div>
                 

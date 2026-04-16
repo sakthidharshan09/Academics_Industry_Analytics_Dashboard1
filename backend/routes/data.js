@@ -338,6 +338,16 @@ router.post('/companies', async (req, res) => {
     }
 });
 
+// Delete a company
+router.delete('/companies/:id', async (req, res) => {
+    try {
+        await Company.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: 'Company deleted' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 // --- Industry Trends & Analysis ---
 
 router.get('/industry-trends', async (req, res) => {

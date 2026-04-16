@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../../api/config';
 import { 
@@ -9,7 +10,8 @@ import {
     PlusCircle,
     BarChart,
     PieChart,
-    Users
+    Users,
+    Download
 } from 'lucide-react';
 import { Pie, Bar } from 'react-chartjs-2';
 
@@ -84,6 +86,24 @@ const AdminView = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
+    const exportAuditReport = () => {
+        const headers = "Date,Time,User,Role,Action,Details\n";
+        const rows = activities.map(act => {
+            const date = new Date(act.createdAt).toLocaleDateString();
+            const time = new Date(act.createdAt).toLocaleTimeString();
+            return `"${date}","${time}","${act.user}","${act.role}","${act.action}","${act.details}"`;
+        }).join("\n");
+        
+        const blob = new Blob([headers + rows], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'system_activity_audit.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
+
     if (loading) return <div>Loading system administration...</div>;
 
     const usageData = {
@@ -97,9 +117,15 @@ const AdminView = () => {
 
     return (
         <div className="fade-in">
-            <div style={{ marginBottom: '32px' }}>
-                <h2 style={{ fontSize: '28px', fontWeight: '800', color: 'var(--gray-900)' }}>System Administration</h2>
-                <p style={{ color: 'var(--gray-500)' }}>Manage industry data trends and monitor system activity.</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                <div>
+                    <h2 style={{ fontSize: '28px', fontWeight: '800', color: 'var(--gray-900)' }}>System Administration</h2>
+                    <p style={{ color: 'var(--gray-500)' }}>Manage industry data trends and monitor system activity.</p>
+                </div>
+                <button className="btn btn-primary" onClick={exportAuditReport}>
+                    <Download size={18} />
+                    Export Activity Audit
+                </button>
             </div>
 
             <div className="stats-grid">

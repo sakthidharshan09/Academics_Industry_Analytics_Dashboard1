@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../../api/config';
 import { 
@@ -14,6 +15,7 @@ import {
     MoreVertical
 } from 'lucide-react';
 import { Line, Bar } from 'react-chartjs-2';
+import '../../utils/chartSetup';
 
 const PlacementView = () => {
     const [students, setStudents] = useState([]);
@@ -61,6 +63,27 @@ const PlacementView = () => {
         }
     };
 
+    const deleteCompany = async (id) => {
+        if (!window.confirm('Delete this placement drive?')) return;
+        try {
+            await axios.delete(`${API_BASE_URL}/data/companies/${id}`);
+            fetchData();
+        } catch (err) {
+            alert('Delete failed.');
+        }
+    };
+
+    const editCompany = (comp) => {
+        setCompanyForm({
+            name: comp.name,
+            role: comp.role,
+            package: comp.package,
+            driveDate: comp.driveDate ? comp.driveDate.split('T')[0] : '',
+            status: comp.status
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     const deleteStudent = async (id, name) => {
         if (!window.confirm(`Delete student record for ${name}?`)) return;
         try {
@@ -96,20 +119,56 @@ const PlacementView = () => {
     );
 
     const exportCSV = () => {
-        const headers = "Name,Department,CGPA,Skills,Status,Company,Package\n";
-        const rows = students.map(s => 
-            `${s.name},${s.department},${s.cgpa},"${s.skills?.join(', ')}",${s.isPlaced ? 'Placed' : 'Not Placed'},${s.placementData?.company || '-'},${s.placementData?.package || '-'}`
-        ).join("\n");
+        let csvContent = "";
         
-        const blob = new Blob([headers + rows], { type: 'text/csv' });
+        // Block 1: Placement Drives
+        csvContent += "=== ACTIVE PLACEMENT DRIVES ===\n";
+        csvContent += "Company Name,Role,Package,Drive Date,Status\n";
+        companies.forEach(c => {
+            const dDate = new Date(c.driveDate).toLocaleDateString();
+            csvContent += `"${c.name}","${c.role}","${c.package}","${dDate}","${c.status}"\n`;
+        });
+        csvContent += "\n\n";
+
+        // Block 2: Student Placements
+        csvContent += "=== STUDENT PLACEMENT RECORDS ===\n";
+        csvContent += "Name,Department,CGPA,Skills,Placement Status,Company,Package\n";
+        students.forEach(s => {
+            const skillsStr = s.skills ? s.skills.join(', ') : 'none';
+            const status = s.isPlaced ? 'Placed' : 'Seeking';
+            const comp = s.placementData?.company || '-';
+            const pkg = s.placementData?.package || '-';
+            csvContent += `"${s.name}","${s.department}","${s.cgpa}","${skillsStr}","${status}","${comp}","${pkg}"\n`;
+        });
+        
+        const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'placement_report.csv';
+        a.download = `Comprehensive_Placement_Report_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
     };
 
     if (loading) return <div>Loading records...</div>;
+
+    const departmentCounts = students.reduce((acc, student) => {
+        const dept = student.department || 'Unassigned';
+        acc[dept] = (acc[dept] || 0) + 1;
+        return acc;
+    }, {});
+    
+    const barData = {
+        labels: Object.keys(departmentCounts),
+        datasets: [{
+            label: 'Students Enrolled',
+            data: Object.values(departmentCounts),
+            backgroundColor: 'rgba(79, 70, 229, 0.6)',
+            borderColor: '#4f46e5',
+            borderWidth: 1
+        }]
+    };
 
     return (
         <div className="fade-in">
@@ -136,6 +195,25 @@ const PlacementView = () => {
                 <div className="stat-card">
                     <div className="stat-card-label"><Briefcase size={18} /> Average Package</div>
                     <div className="stat-card-value">{stats?.avgPackage || '0 LPA'}</div>
+                </div>
+            </div>
+
+            {/* Department Distribution Chart */}
+            <div className="chart-card" style={{ marginBottom: '40px' }}>
+                <h3>Student Distribution by Department</h3>
+                <div style={{ height: '250px', padding: '16px' }}>
+                    <Bar 
+                        data={barData} 
+                        options={{
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                            }
+                        }}
+                    />
                 </div>
             </div>
 
@@ -171,6 +249,59 @@ const PlacementView = () => {
                         <Plus size={18} /> Save Drive
                     </button>
                 </form>
+            </div>
+
+            {/* Active Placement Drives Table */}
+            <div className="chart-card" style={{ marginBottom: '40px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                    <h3>Active Placement Drives</h3>
+                </div>
+                <div className="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Role</th>
+                                <th>Package</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {companies.map(comp => (
+                                <tr key={comp._id}>
+                                    <td style={{ fontWeight: '700' }}>{comp.name}</td>
+                                    <td>{comp.role}</td>
+                                    <td style={{ fontWeight: '600' }}>{comp.package}</td>
+                                    <td>{new Date(comp.driveDate).toLocaleDateString()}</td>
+                                    <td>
+                                        <span style={{
+                                            padding: '4px 10px',
+                                            borderRadius: '20px',
+                                            fontSize: '11px',
+                                            fontWeight: '700',
+                                            background: comp.status === 'Completed' ? 'rgba(16, 185, 129, 0.1)' : (comp.status === 'Ongoing' ? 'rgba(245, 158, 11, 0.1)' : 'var(--primary-light)'),
+                                            color: comp.status === 'Completed' ? 'var(--success)' : (comp.status === 'Ongoing' ? 'var(--accent)' : 'var(--primary)')
+                                        }}>
+                                            {comp.status.toUpperCase()}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <button className="btn" style={{ padding: '6px', background: 'var(--primary-light)', color: 'var(--primary)' }} onClick={() => editCompany(comp)}>
+                                                <Edit2 size={16} />
+                                            </button>
+                                            <button className="btn" style={{ padding: '6px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)' }} onClick={() => deleteCompany(comp._id)}>
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Students Table */}
