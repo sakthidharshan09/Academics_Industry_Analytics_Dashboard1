@@ -39,7 +39,7 @@ const AppRoutes = () => {
                     </ProtectedRoute>
                 } 
             />
-            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
             <Route path="*" element={<div>404 Not Found</div>} />
         </Routes>
     );
